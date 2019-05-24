@@ -44,6 +44,32 @@ X_test = sc.transform(X_test)
 
 
 
+#Applying K-fold Cross Validation
+#from sklearn.model_selection import cross_val_score
+#accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10)
+
+mean = accuracies.mean()
+std = accuracies.std()
+
+#Applying the Grid Search to find the best model and the best parameters
+from sklearn.model_selection import GridSearchCV
+parameters = [{'n_estimators' : [32,34,36,38,40,42,44,46,48],
+                'max_depth' : [8,9,10]
+                }]
+
+grid_search = GridSearchCV(estimator = classifier, 
+                           param_grid = parameters, 
+                           scoring = 'accuracy',
+                           cv = 10, 
+                           n_jobs = -1)
+
+
+grid_search = grid_search.fit(X_train, y_train)
+
+best_accuracy = grid_search.best_score_
+best_parameters = grid_search.best_params_
+
+
 # Fitting Random Forest Classification to the Training set
 from sklearn.ensemble import RandomForestClassifier
 classifier = RandomForestClassifier(n_estimators = 100, criterion = 'entropy',max_depth = 6 , random_state = 0)
@@ -65,26 +91,12 @@ from sklearn.metrics import confusion_matrix
 cm_RF = confusion_matrix(y_test, y_pred)
 
 
-#Applying K-fold Cross Validation
-from sklearn.model_selection import cross_val_score
-accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10)
-
-mean = accuracies.mean()
-std = accuracies.std()
-
-
 CAP = np.stack((y_test,y_pred_Test_proba[:,1]), axis=1)
 
 CAP = pd.DataFrame({'y_test' : CAP[:,0],
                     'y_test_proba' : CAP[:,1]}).sort_values(by=['y_test_proba'], ascending =False).to_csv(r"C:\Users\iasedric.REDMOND\Documents\_Perso\Training\Data Science A-Z Template Folder\Churn\For_CAP_wRegressionForest_test.csv", index=False, encoding='utf_8_sig')
 
 
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May 24 14:15:54 2019
-
-@author: iasedric
-"""
 
 
 """
